@@ -192,7 +192,7 @@ class History:
             list of numbers : a derivative with respect to `inputs`
         """
         # TODO: Implement for Task 1.4.
-        raise NotImplementedError('Need to implement for Task 1.4')
+        raise NotImplementedError("Need to implement for Task 1.4")
 
 
 class FunctionBase:
@@ -264,18 +264,24 @@ class FunctionBase:
 
         Args:
             ctx (:class:`Context`) : The context from running forward
-            inputs (list of args) : The args that were passed to :func:`FunctionBase.apply` (e.g. :math:`x, y`)
+            inputs (list of args) : The args that were passed to
+                :func:`FunctionBase.apply` (e.g. :math:`x, y`)
             d_output (number) : The `d_output` value in the chain rule.
 
         Returns:
-            list of (`Variable`, number) : A list of non-constant variables with their derivatives
-            (see `is_constant` to remove unneeded variables)
+            list of (`Variable`, number) : A list of non-constant variables with their
+                derivatives (see `is_constant` to remove unneeded variables)
 
         """
-        # Tip: Note when implementing this function that
-        # cls.backward may return either a value or a tuple.
-        # TODO: Implement for Task 1.3.
-        raise NotImplementedError('Need to implement for Task 1.3')
+        d_outputs = cls.backward(ctx, d_output)
+        if not isinstance(d_outputs, tuple):
+            d_outputs = (d_outputs,)
+
+        return [
+            (variable, derivative)
+            for variable, derivative in zip(inputs, d_outputs)
+            if not is_constant(variable)
+        ]
 
 
 # Algorithms for backpropagation
@@ -297,7 +303,7 @@ def topological_sort(variable):
                             starting from the right.
     """
     # TODO: Implement for Task 1.4.
-    raise NotImplementedError('Need to implement for Task 1.4')
+    raise NotImplementedError("Need to implement for Task 1.4")
 
 
 def backpropagate(variable, deriv):
@@ -314,4 +320,4 @@ def backpropagate(variable, deriv):
     No return. Should write to its results to the derivative values of each leaf through `accumulate_derivative`.
     """
     # TODO: Implement for Task 1.4.
-    raise NotImplementedError('Need to implement for Task 1.4')
+    raise NotImplementedError("Need to implement for Task 1.4")
