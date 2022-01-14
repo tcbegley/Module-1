@@ -10,8 +10,9 @@ variable_count = 1
 class Variable:
     """
     Attributes:
-        history (:class:`History` or None) : the Function calls that created this variable or None if constant
-        derivative (variable type): the derivative with respect to this variable
+        history (:class:`History` or None) : the Function calls that created this
+            variable or None if constant derivative
+        (variable type): the derivative with respect to this variable
         grad (variable type) : alias for derivative, used for tensors
         name (string) : a globally unique name of the variable
     """

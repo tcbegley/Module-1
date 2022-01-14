@@ -12,22 +12,22 @@ import math
 
 def mul(x, y):
     ":math:`f(x, y) = x * y`"
-    return x * y
+    return float(x * y)
 
 
 def id(x):
     ":math:`f(x) = x`"
-    return x
+    return float(x)
 
 
 def add(x, y):
     ":math:`f(x, y) = x + y`"
-    return x + y
+    return float(x + y)
 
 
 def neg(x):
     ":math:`f(x) = -x`"
-    return -x
+    return -float(x)
 
 
 def lt(x, y):
@@ -42,7 +42,7 @@ def eq(x, y):
 
 def max(x, y):
     ":math:`f(x) =` x if x is greater than y else y"
-    return x if x > y else y
+    return float(x) if x > y else float(y)
 
 
 def is_close(x, y):
@@ -87,7 +87,7 @@ def relu(x):
         float : relu value
     """
     if x > 0:
-        return x
+        return float(x)
     return 0.0
 
 
@@ -118,13 +118,13 @@ def inv(x):
 
 def inv_back(x, d):
     r"If :math:`f(x) = 1/x` compute d :math:`d \times f'(x)`"
-    return -d / x ** 2
+    return float(-d / x ** 2)
 
 
 def relu_back(x, d):
     r"If :math:`f = relu` compute d :math:`d \times f'(x)`"
     if x > 0:
-        return d
+        return float(d)
     return 0.0
 
 
