@@ -1,3 +1,6 @@
+import enum
+from collections import defaultdict, deque
+
 variable_count = 1
 
 
@@ -52,8 +55,8 @@ class Variable:
         Calls autodiff to fill in the derivatives for the history of this object.
 
         Args:
-            d_output (number, opt): starting derivative to backpropagate through the model
-                                   (typically left out, and assumed to be 1.0).
+            d_output (number, opt): starting derivative to backpropagate through the
+                model (typically left out, and assumed to be 1.0).
         """
         if d_output is None:
             d_output = 1.0
@@ -191,8 +194,7 @@ class History:
         Returns:
             list of numbers : a derivative with respect to `inputs`
         """
-        # TODO: Implement for Task 1.4.
-        raise NotImplementedError("Need to implement for Task 1.4")
+        return self.last_fn.chain_rule(self.ctx, self.inputs, d_output)
 
 
 class FunctionBase:
@@ -299,25 +301,62 @@ def topological_sort(variable):
         variable (:class:`Variable`): The right-most variable
 
     Returns:
-        list of Variables : Non-constant Variables in topological order
-                            starting from the right.
+        list of Variables : Non-constant Variables in topological order starting from
+            the right.
     """
-    # TODO: Implement for Task 1.4.
-    raise NotImplementedError("Need to implement for Task 1.4")
+
+    class NodeState(enum.Enum):
+        UNVISITED = 0
+        VISITING = 1
+        VISITED = 2
+
+    order = deque()
+    state = defaultdict(lambda: NodeState.UNVISITED)
+
+    def helper(v):
+        if state[v.unique_id] == NodeState.VISITING:
+            # cycle detected
+            raise RuntimeError("Computation graph has a cycle")
+        elif state[v.unique_id] == NodeState.UNVISITED:
+            state[v.unique_id] = NodeState.VISITING
+            if not v.is_leaf():
+                for predecessor in v.history.inputs:
+                    if not is_constant(predecessor):
+                        helper(predecessor)
+            state[v.unique_id] = NodeState.VISITED
+            order.appendleft(v)
+
+    helper(variable)
+    return order
 
 
 def backpropagate(variable, deriv):
     """
-    Runs backpropagation on the computation graph in order to
-    compute derivatives for the leave nodes.
+    Runs backpropagation on the computation graph in order to compute derivatives for
+    the leaf nodes.
 
     See :doc:`backpropagate` for details on the algorithm.
 
     Args:
         variable (:class:`Variable`): The right-most variable
-        deriv (number) : Its derivative that we want to propagate backward to the leaves.
+        deriv (number) : Its derivative that we want to propagate backward to the
+            leaves.
 
-    No return. Should write to its results to the derivative values of each leaf through `accumulate_derivative`.
+    No return. Should write to its results to the derivative values of each leaf
+    through `accumulate_derivative`.
     """
-    # TODO: Implement for Task 1.4.
-    raise NotImplementedError("Need to implement for Task 1.4")
+    queue = topological_sort(variable)
+
+    derivative_lookup = {v.unique_id: 0.0 for v in queue}
+    derivative_lookup[variable.unique_id] += deriv
+
+    while queue:
+        v = queue.popleft()
+        d = derivative_lookup[v.unique_id]
+
+        if v.is_leaf():
+            v.accumulate_derivative(d)
+        else:
+            derivatives = v.history.backprop_step(d)
+            for variable, derivative in derivatives:
+                derivative_lookup[variable.unique_id] += derivative
